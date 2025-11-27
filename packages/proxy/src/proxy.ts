@@ -255,10 +255,12 @@ export async function handleProxy(
 
 	if (needsReauth.length > 0) {
 		// Quote account names to prevent command injection (defense-in-depth)
+		// Use single quotes and escape any single quotes in the name using '\''
+		// This is the safest approach as single quotes prevent all shell expansions
 		const reauthCommands = needsReauth
 			.map(
 				(acc) =>
-					`bun run cli --reauthenticate "${acc.name.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`,
+					`bun run cli --reauthenticate '${acc.name.replace(/'/g, "'\\''")}'`,
 			)
 			.join("\n  ");
 		throw new ServiceUnavailableError(
